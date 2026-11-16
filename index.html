@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ficha de Registro de Ocorrência – E.E. Pirassununga</title>
+<style>
+  :root { --line: 22px; --ink:#111; --gray:#a6a6a6; --ui:#1f3b57; }
+  * { box-sizing: border-box; }
+  body { margin:0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; background:#e9ecef; color:#222; }
+
+  /* ---------- Layout da tela ---------- */
+  .app { display:grid; grid-template-columns: 400px 1fr; gap:0; min-height:100vh; }
+  .painel { background:#fff; padding:18px 18px 40px; border-right:1px solid #d0d5da; overflow-y:auto; max-height:100vh; position:sticky; top:0; }
+  .painel h1 { font-size:17px; margin:0 0 2px; color:var(--ui); }
+  .painel p.sub { margin:0 0 14px; font-size:12.5px; color:#666; }
+  fieldset { border:1px solid #dde2e7; border-radius:8px; padding:10px 12px 12px; margin:0 0 12px; }
+  legend { font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.04em; color:var(--ui); padding:0 4px; }
+  label { display:block; font-size:12.5px; font-weight:600; margin:8px 0 3px; }
+  label small { font-weight:400; color:#777; }
+  input[type=text], input[type=date], textarea, select {
+    width:100%; font:inherit; font-size:14px; padding:7px 9px; border:1px solid #c6ccd2; border-radius:6px; background:#fbfcfd;
+  }
+  textarea { resize:vertical; min-height:70px; line-height:1.35; }
+  input:focus, textarea:focus { outline:2px solid #8db4dc; border-color:#8db4dc; background:#fff; }
+  .row { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+  .checks label { display:flex; align-items:center; gap:7px; font-weight:400; margin:5px 0; font-size:13.5px; cursor:pointer; }
+  .checks input { width:17px; height:17px; }
+  .toggle { display:flex; align-items:center; gap:8px; font-weight:600; font-size:13px; margin:2px 0 4px; cursor:pointer; }
+  .mini { font-size:12px; color:#666; margin:0 0 6px; }
+  details.grupo { border-top:1px solid #edf0f3; padding:6px 0 4px; }
+  details.grupo summary { font-size:13px; font-weight:700; cursor:pointer; color:#333; padding:3px 0; list-style:none; display:flex; justify-content:space-between; }
+  details.grupo summary::-webkit-details-marker { display:none; }
+  details.grupo summary::after { content:"▸"; color:#999; }
+  details.grupo[open] summary::after { content:"▾"; }
+  details.grupo summary .n { background:var(--ui); color:#fff; border-radius:10px; font-size:11px; padding:0 7px; margin-left:6px; }
+  .extras { border-top:1px solid #edf0f3; margin-top:6px; padding-top:4px; }
+  .extras label { color:#555; font-style:italic; }
+  .auto { font-weight:400; font-size:11px; border-radius:8px; padding:1px 7px; margin-left:4px; }
+  .auto.on { background:#e3f1e6; color:#22693a; }
+  .auto.off { background:#fdf0dc; color:#8a4b00; }
+  .btn-mini { background:none; color:var(--ui); font-size:12px; padding:3px 0; font-weight:600; }
+  .acoes { position:sticky; bottom:-40px; background:#fff; padding:10px 0 0; display:flex; gap:8px; flex-wrap:wrap; }
+  button { font:inherit; font-size:14px; font-weight:600; border:0; border-radius:7px; padding:10px 14px; cursor:pointer; }
+  .btn-pdf { background:var(--ui); color:#fff; flex:1; }
+  .btn-pdf:hover { background:#163049; }
+  .btn-sec { background:#e6eaee; color:#333; }
+  .dica { font-size:12px; color:#666; margin-top:10px; line-height:1.45; }
+  .aviso { font-size:12px; color:#8a4b00; background:#fff4e0; border-radius:6px; padding:6px 8px; margin-top:8px; display:none; }
+
+  .preview { padding:24px; display:flex; flex-direction:column; align-items:center; gap:24px; }
+  .preview .contador { font-size:13px; color:#555; }
+
+  /* ---------- Folha A4 ---------- */
+  .folha {
+    width:210mm; min-height:297mm; background:#fff; color:var(--ink);
+    padding:8mm 14mm 6mm; box-shadow:0 2px 12px rgba(0,0,0,.18);
+    font-family: Arial, "Liberation Sans", Helvetica, sans-serif; font-size:9.5pt; line-height:1.3;
+    -webkit-print-color-adjust:exact; print-color-adjust:exact;
+  }
+  .cab { display:grid; grid-template-columns: 34mm 1fr 34mm; align-items:center; }
+  .cab img { width:30mm; height:auto; }
+  .cab .txt { text-align:center; font-weight:700; font-size:8.5pt; line-height:1.35; }
+  .cab .txt .mail { color:#1f5c99; text-decoration:underline; }
+  .titulo { font-size:11pt; margin:3mm 0 1.5mm; letter-spacing:.01em; }
+
+  table.dados { width:100%; border-collapse:collapse; margin-bottom:3.5mm; table-layout:fixed; }
+  table.dados th, table.dados td { border:1px solid #000; padding:1mm 2mm; }
+  table.dados th { background:var(--gray); font-size:8pt; font-weight:700; text-align:center; }
+  table.dados td { height:6.5mm; font-size:9.5pt; text-align:center; }
+
+  .casos { font-size:8.5pt; margin:-1.5mm 0 3mm; line-height:1.9; }
+  .casos b { font-weight:700; }
+  .casos .op { margin-right:3.5mm; white-space:nowrap; }
+  .casos .x { font-weight:700; }
+
+  .bloco { border:1px solid #000; margin:0 auto 3.5mm; width:93%; }
+  .bloco .h { background:var(--gray); text-align:center; font-weight:700; font-size:8pt; padding:1mm; border-bottom:1px solid #000; }
+  .bloco .linhas { position:relative; font-size:9.5pt; }
+  .linhas .pauta { height:var(--line); border-bottom:1px solid #000; }
+  .linhas .pauta:last-of-type { border-bottom:0; }
+  .linhas .texto { position:absolute; top:0; left:2mm; right:2mm; line-height:var(--line); white-space:pre-wrap; word-wrap:break-word; overflow-wrap:anywhere; }
+  .medidor { position:absolute !important; left:-10000px; top:0; visibility:hidden; min-height:0 !important; box-shadow:none !important; }
+  .medidor .linhas .texto { position:static; padding:0 2mm; }
+  .local { text-align:center; margin:0 0 9mm; font-size:10pt; }
+  .assin { display:grid; grid-template-columns:1fr 1fr; gap:16mm; margin:0 4mm; }
+  .assin div { border-top:1px solid #000; text-align:center; font-weight:700; padding-top:1mm; font-size:9pt; }
+  .assin div span { display:block; font-weight:400; font-size:8.5pt; }
+  .corte { border-top:1.5px dashed #000; margin:5mm 0 2.5mm; }
+  .conv { font-size:10pt; line-height:1.75; text-align:justify; }
+  .conv .c { text-align:center; }
+  .conv .f { display:inline-block; min-width:8mm; border-bottom:1px solid #000; text-align:center; padding:0 1mm; line-height:1.2; font-weight:600; }
+  .conv .procurar { display:flex; justify-content:space-around; margin-top:1mm; }
+  .conv .resp { margin-top:3mm; }
+  .conv.oculta { display:none; }
+
+  /* ---------- Lista ---------- */
+  fieldset.lista { background:#f5f8fb; border-color:#c9d6e3; }
+  legend .n, .contador .n { background:var(--ui); color:#fff; border-radius:10px; font-size:11px; padding:1px 7px; margin-left:4px; }
+  .item { background:#fff; border:1px solid #dde2e7; border-radius:7px; padding:7px 8px; margin:0 0 6px; display:flex; gap:6px; align-items:center; }
+  .item.ativo { border-color:#8db4dc; box-shadow:0 0 0 2px #d6e6f5; }
+  .item .info { flex:1; min-width:0; }
+  .item .nome { font-size:13.5px; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .item .meta { font-size:11.5px; color:#666; }
+  .item button { background:#eef2f6; color:#333; font-size:12px; padding:5px 8px; border-radius:6px; }
+  .item button.rm { background:none; color:#a33; font-size:15px; padding:3px 6px; }
+  .lista-acoes { display:flex; gap:8px; margin-top:4px; }
+  .btn-add { background:#2e7d4f; color:#fff; flex:1 1 100%; }
+  .btn-add:hover { background:#25683f; }
+  .editando { display:none; background:#fff4e0; color:#8a4b00; font-size:12.5px; border-radius:7px; padding:7px 10px; margin-bottom:12px; }
+  .toast { position:fixed; left:50%; bottom:24px; transform:translateX(-50%); background:#1f3b57; color:#fff; padding:9px 16px; border-radius:20px; font-size:13.5px; opacity:0; transition:opacity .25s; pointer-events:none; z-index:9; }
+  .toast.on { opacity:1; }
+  #printArea { display:none; }
+
+  /* ---------- Impressão ---------- */
+  @page { size:A4; margin:0; }
+  @media print {
+    body { background:#fff; }
+    .app, .toast, .medidor { display:none !important; }
+    #printArea { display:block; }
+    .folha { box-shadow:none; margin:0; page-break-after:always; break-after:page; min-height:auto; }
+    .folha:last-child { page-break-after:auto; break-after:auto; }
+  }
+
+  /* ---------- Tablet / celular ---------- */
+  @media (max-width: 1100px) {
+    .app { grid-template-columns:1fr; }
+    .painel { position:static; max-height:none; border-right:0; border-bottom:1px solid #d0d5da; }
+    .acoes { position:static; }
+    .preview { overflow-x:auto; align-items:flex-start; }
+    .preview .folha { zoom:.62; }
+  }
+  @media print { .folha { zoom:1 !important; } }
+</style>
+</head>
+<body>
+<div class="app">
+  <!-- ================= FORMULÁRIO ================= -->
+  <form class="painel" id="form" autocomplete="off">
+    <h1>Ficha de Registro de Ocorrência</h1>
+    <p class="sub" style="margin:0;font-weight:600;color:#333">E.E. Pirassununga</p>
+    <p class="sub">Preencha à esquerda; a ficha ao lado atualiza na hora.</p>
+
+    <fieldset class="lista" id="fsLista">
+      <legend>Lista de ocorrências <span class="n" id="nLista">0</span></legend>
+      <div id="listaItens"></div>
+      <p class="mini" id="listaVazia">Nenhuma ocorrência na lista ainda. Preencha a ficha e clique em <b>Adicionar à lista</b>; no final, gere um PDF único com todas.</p>
+      <div class="lista-acoes" id="listaAcoes">
+        <button type="button" class="btn-pdf" id="pdfTodas">PDF com todas</button>
+        <button type="button" class="btn-sec" id="esvaziar">Esvaziar</button>
+      </div>
+    </fieldset>
+
+    <div class="editando" id="editando">Editando uma ocorrência da lista. <button type="button" class="btn-mini" id="cancelarEd">Cancelar edição</button></div>
+
+    <fieldset>
+      <legend>Professor(a)</legend>
+      <label>Nome do(a) professor(a)</label>
+      <input type="text" id="professor" data-lembrar>
+      <div class="row">
+        <div><label>Disciplina</label><input type="text" id="disciplina" data-lembrar></div>
+        <div><label>Data da ocorrência</label><input type="date" id="data"></div>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Aluno(a)</legend>
+      <label>Nome do(a) aluno(a) <small>— um por linha gera uma ficha para cada</small></label>
+      <textarea id="alunos" rows="2" placeholder="Ex.: Fulano de Tal"></textarea>
+      <div class="row">
+        <div><label>Ano/Série</label><input type="text" id="serie" placeholder="Ex.: 9º A"></div>
+        <div><label>Tutor(a)</label><input type="text" id="tutor"></div>
+      </div>
+    </fieldset>
+
+    <fieldset class="checks" id="fsMotivos">
+      <legend>Motivos da ocorrência</legend>
+      <p class="mini">Marque o que aconteceu. O “(X)” do tipo de ocorrência é marcado sozinho.</p>
+      <div id="motivos"></div>
+      <details class="grupo" open>
+        <summary>Outro motivo</summary>
+        <textarea id="outroMotivo" rows="2" placeholder="Descreva a ocorrência específica (ex.: jogou papel no colega durante a correção)"></textarea>
+        <input type="text" id="outrosTxt" placeholder="Rótulo curto para “Outros(X)” na ficha (opcional)" style="margin-top:6px">
+      </details>
+      <div class="extras">
+        <label><input type="checkbox" id="mPersistiu"> Persistiu mesmo após orientação</label>
+        <label><input type="checkbox" id="mPrejudicou"> Prejudicou o andamento da aula</label>
+        <label><input type="checkbox" id="mReincidente"> Situação recorrente</label>
+      </div>
+    </fieldset>
+
+    <fieldset class="checks" id="fsInterv">
+      <legend>Intervenções do professor</legend>
+      <div id="intervs"></div>
+      <label style="font-weight:600;margin-top:8px">Outra intervenção</label>
+      <textarea id="outraInterv" rows="2" placeholder="Ex.: propôs que o aluno refizesse a atividade no contraturno"></textarea>
+    </fieldset>
+
+    <fieldset>
+      <legend>Relato (texto da ficha)</legend>
+      <div class="row">
+        <div><label>Tratamento do(a) aluno(a)</label>
+          <select id="genAluno"><option value="n">o(a) aluno(a)</option><option value="m">o aluno</option><option value="f">a aluna</option></select></div>
+        <div><label>Tratamento do(a) professor(a)</label>
+          <select id="genProf" data-lembrar><option value="m">o professor</option><option value="f">a professora</option></select></div>
+      </div>
+      <label>Descrição do ocorrido <span class="auto" id="autoDescTag"></span></label>
+      <textarea id="descricao" rows="5"></textarea>
+      <button type="button" class="btn-mini" data-regen="descricao">↻ Regerar a partir dos motivos</button>
+      <label>Intervenção realizada pelo professor da sala <span class="auto" id="autoIntTag"></span></label>
+      <textarea id="intervencao" rows="4"></textarea>
+      <button type="button" class="btn-mini" data-regen="intervencao">↻ Regerar a partir das intervenções</button>
+      <label>Encaminhamentos – intervenção da equipe gestora <small>(pode ficar em branco)</small></label>
+      <textarea id="encaminhamentos" rows="2"></textarea>
+      <div class="aviso" id="aviso">O texto está longo e a ficha pode passar de uma página. Considere resumir.</div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Local e data da ficha</legend>
+      <label class="toggle"><input type="checkbox" id="dataEmBranco"> Deixar a data em branco (preencher à mão)</label>
+      <div class="row">
+        <div><label>Cidade</label><input type="text" id="cidade" value="Pirassununga/SP" data-lembrar></div>
+        <div><label>Data de emissão</label><input type="date" id="dataEmissao"></div>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Convocação dos responsáveis</legend>
+      <label class="toggle"><input type="checkbox" id="mostrarConv" checked> Incluir o canhoto de convocação</label>
+      <label class="toggle"><input type="checkbox" id="convEmBranco"> Deixar os campos em branco (preencher à mão)</label>
+      <label>Data para comparecer</label>
+      <input type="date" id="dataComparecer">
+      <div class="row">
+        <div><label>Procurar por</label><input type="text" id="procurar" data-lembrar></div>
+        <div><label>Função</label><input type="text" id="funcao" data-lembrar></div>
+      </div>
+    </fieldset>
+
+    <div class="acoes">
+      <button type="button" class="btn-add" id="adicionar">+ Adicionar à lista</button>
+      <button type="button" class="btn-pdf" id="gerar">PDF só desta</button>
+      <button type="button" class="btn-sec" id="limpar">Limpar</button>
+    </div>
+    <p class="dica">
+      <b>Gerar PDF</b> abre a janela de impressão: escolha <b>“Salvar como PDF”</b> como destino. No iPad/Safari, use Compartilhar → Imprimir → gesto de pinça na prévia (ou “Salvar em Arquivos”).
+      Para ficar com o fundo cinza dos cabeçalhos, deixe marcada a opção “Gráficos de fundo”.
+      Nome do professor, disciplina, cidade, “procurar por” e função ficam salvos neste navegador. A lista também fica salva neste aparelho até você esvaziá-la.
+    </p>
+  </form>
+
+  <!-- ================= PRÉ-VISUALIZAÇÃO ================= -->
+  <main class="preview" id="preview"></main>
+</div>
+<div id="printArea"></div>
+
+<template id="tplFolha">
+  <section class="folha">
+    <div class="cab">
+      <img alt="Governo do Estado de São Paulo – Secretaria da Educação" src="data:image/png;base64,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">
+      <div class="txt">
+        SECRETARIA DE ESTADO DA EDUCAÇÃO<br>
+        URE – REGIÃO DE PIRASSUNUNGA<br>
+        E. E. PIRASSUNUNGA<br>
+        Rua José Bonifácio, 325 – Centro – Pirassununga/SP – CEP: 13630-010<br>
+        Fone: (19) 3561-9148<br>
+        E-mail: <span class="mail">e021441a@educacao.sp.gov.br</span>
+      </div>
+      <div></div>
+    </div>
+
+    <div class="titulo">REGISTROS DE OCORRÊNCIA EM SALA DE AULA</div>
+
+    <table class="dados">
+      <tr><th style="width:45%">NOME DO (A) PROFESSOR(A)</th><th>DISCIPLINA</th><th>DATA</th></tr>
+      <tr><td data-f="professor"></td><td data-f="disciplina"></td><td data-f="data"></td></tr>
+    </table>
+    <table class="dados">
+      <tr><th style="width:45%">NOME DO (A) ALUNO(A)</th><th>ANO/SÉRIE</th><th>TUTOR</th></tr>
+      <tr><td data-f="aluno"></td><td data-f="serie"></td><td data-f="tutor"></td></tr>
+    </table>
+
+    <div class="casos">
+      <b>CASO DE Ocorrência</b>:
+      <span class="op">Violência/ameaça(<span class="x" data-c="violencia"></span>)</span>
+      <span class="op">Indisciplina(<span class="x" data-c="indisciplina"></span>)</span>
+      <span class="op">Bullying/Ciberbullying(<span class="x" data-c="bullying"></span>)</span><br>
+      <span class="op">Falta de interesse/Material/Não realiza as Atividades(<span class="x" data-c="interesse"></span>)</span>
+      <span class="op">Celular/fone(<span class="x" data-c="celular"></span>)</span>
+      <span class="op">Outros(<span class="x" data-c="outros"></span>)<span data-f="outrosTxt"></span></span>
+    </div>
+
+    <div class="bloco"><div class="h">DESCRIÇÃO DO OCORRIDO</div><div class="linhas" data-f="descricao"></div></div>
+    <div class="bloco"><div class="h">INTERVENÇÃO REALIZADA PELO PROFESSOR DA SALA</div><div class="linhas" data-f="intervencao"></div></div>
+    <div class="bloco"><div class="h">ENCAMINHAMENTOS – INTERVENÇÃO DA EQUIPE GESTORA</div><div class="linhas" data-f="encaminhamentos"></div></div>
+
+    <div class="local" data-f="local"></div>
+
+    <div class="assin">
+      <div>Assinatura/Carimbo<span data-f="profAssin"></span></div>
+      <div>Ciência do(a) Aluno(a)<span data-f="alunoAssin"></span></div>
+    </div>
+
+    <div class="conv">
+      <div class="corte"></div>
+      Comunico aos Srs. Pais ou responsáveis pelo(a) aluno(a) <span class="f" data-f="convAluno" style="min-width:70mm"></span>,
+      pertencente ao ano/série <span class="f" data-f="convSerie" style="min-width:14mm"></span>, a comparecer na E.E. Pirassununga,
+      dia <span class="f" data-f="convDia" style="min-width:22mm"></span>, acompanhado(a) de seu filho(a), para tomar ciência do ocorrido em
+      <span class="f" data-f="convOcorr" style="min-width:22mm"></span>.
+      <div class="procurar">
+        <span>Procurar por: <span class="f" data-f="procurar" style="min-width:35mm"></span></span>
+        <span>Função: <span class="f" data-f="funcao" style="min-width:35mm"></span></span>
+      </div>
+      <div class="c" data-f="convLocal"></div>
+      <div class="resp">Assinatura do Responsável: <span class="f" style="min-width:95mm">&nbsp;</span></div>
+    </div>
+  </section>
+</template>
+
+<script>
+(function () {
+  const $ = id => document.getElementById(id);
+  const MESES = ["janeiro","fevereiro","março","abril","maio","junho","julho","agosto","setembro","outubro","novembro","dezembro"];
+  const hojeISO = () => { const d = new Date(); d.setMinutes(d.getMinutes() - d.getTimezoneOffset()); return d.toISOString().slice(0,10); };
+  const parse = iso => { if (!iso) return null; const [a,m,d] = iso.split("-").map(Number); return {a,m,d}; };
+  const br = iso => { const p = parse(iso); return p ? String(p.d).padStart(2,"0")+"/"+String(p.m).padStart(2,"0")+"/"+p.a : ""; };
+  const extenso = iso => { const p = parse(iso); return p ? `${String(p.d).padStart(2,"0")} de ${MESES[p.m-1]} de ${p.a}` : ""; };
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+  const store = {
+    get(k){ try { return localStorage.getItem("ocorrEEP_"+k); } catch(e){ return null; } },
+    set(k,v){ try { localStorage.setItem("ocorrEEP_"+k, v); } catch(e){} }
+  };
+  document.querySelectorAll("[data-lembrar]").forEach(el => {
+    const v = store.get(el.id); if (v !== null) el.value = v;
+    el.addEventListener("input", () => store.set(el.id, el.value));
+    el.addEventListener("change", () => store.set(el.id, el.value));
+  });
+  $("data").value = hojeISO();
+  $("dataEmissao").value = hojeISO();
+
+  // ================= MOTIVOS =================
+  const MOTIVOS = [
+    { cat:"celular", titulo:"Celular/fone", itens:[
+      ["cel1","Uso do celular durante a aula","utilizou o celular durante a aula"],
+      ["cel2","Uso de fone de ouvido","utilizou fone de ouvido durante a explicação"],
+      ["cel3","Fotos/vídeos sem autorização","fez fotos ou vídeos em sala sem autorização"],
+    ]},
+    { cat:"indisciplina", titulo:"Indisciplina", itens:[
+      ["ind1","Conversas paralelas","manteve conversas paralelas que atrapalharam a explicação"],
+      ["ind2","Desrespeito ao professor","faltou com respeito a{prof}"],
+      ["ind3","Desrespeito aos colegas","faltou com respeito aos colegas"],
+      ["ind4","Linguagem inadequada/palavrões","utilizou linguagem inadequada em sala"],
+      ["ind5","Recusa em seguir orientações","recusou-se a seguir as orientações d{prof}"],
+      ["ind6","Brincadeiras inadequadas","fez brincadeiras inadequadas durante a aula"],
+      ["ind7","Fora do lugar / circulando","permaneceu fora do seu lugar, circulando pela sala"],
+      ["ind8","Saiu da sala sem autorização","saiu da sala sem autorização"],
+      ["ind9","Atraso sem justificativa","chegou atrasad{o} à aula sem justificativa"],
+      ["ind10","Dano a material/patrimônio","danificou material ou patrimônio da escola"],
+    ]},
+    { cat:"interesse", titulo:"Falta de interesse / material / atividades", itens:[
+      ["int1","Não trouxe material","não trouxe o material necessário para a aula"],
+      ["int2","Não realizou as atividades","não realizou as atividades propostas"],
+      ["int3","Não entregou tarefa/trabalho","não entregou a tarefa solicitada"],
+      ["int4","Dormindo/debruçado na carteira","permaneceu debruçad{o} sobre a carteira, sem participar da aula"],
+      ["int5","Não copiou a matéria","não registrou o conteúdo no caderno"],
+    ]},
+    { cat:"violencia", titulo:"Violência/ameaça", itens:[
+      ["vio1","Agressão física a colega","agrediu fisicamente um(a) colega"],
+      ["vio2","Briga com colega","envolveu-se em briga com colega(s)"],
+      ["vio3","Ameaça a colega","fez ameaças a colega(s)"],
+      ["vio4","Ameaça ao professor","fez ameaças a{prof}"],
+    ]},
+    { cat:"bullying", titulo:"Bullying/Ciberbullying", itens:[
+      ["bul1","Ofensas/apelidos depreciativos","dirigiu ofensas e apelidos depreciativos a colega(s)"],
+      ["bul2","Intimidação/exclusão de colega","praticou atos de intimidação e exclusão contra colega(s)"],
+      ["bul3","Ofensas em redes sociais","fez publicações ofensivas sobre colega(s) em redes sociais"],
+    ]},
+  ];
+  const CAT_LABEL = { celular:"Celular/fone", indisciplina:"Indisciplina", interesse:"Falta de interesse", violencia:"Violência/ameaça", bullying:"Bullying", outros:"Outros" };
+
+  // ================= INTERVENÇÕES =================
+  const INTERVS = [
+    ["iv1","Advertência verbal em sala","advertiu verbalmente {al} em sala"],
+    ["iv2","Conversa individual","conversou individualmente com {al} ao final da aula"],
+    ["iv3","Orientou sobre normas de convivência","orientou {al} sobre as normas de convivência da escola"],
+    ["iv4","Pediu para guardar o celular","solicitou que {al} guardasse o celular"],
+    ["iv5","Orientou sobre o uso do celular","orientou {al} sobre as regras de uso do celular em sala"],
+    ["iv6","Recolheu o celular (entregue à gestão)","recolheu o celular e o entregou à equipe gestora"],
+    ["iv7","Trocou de lugar na sala","trocou {al} de lugar na sala"],
+    ["iv8","Retomou a atividade com o aluno","retomou a atividade com {al}, incentivando sua realização"],
+    ["iv9","Encaminhou à equipe gestora","encaminhou {al} à equipe gestora"],
+    ["iv10","Comunicou ao tutor","comunicou o ocorrido ao tutor{tutor}"],
+    ["iv11","Comunicou à coordenação","comunicou o ocorrido à coordenação"],
+    ["iv12","Contato com os responsáveis","entrou em contato com os responsáveis"],
+    ["iv13","Registrou no Conviva SP","registrou a ocorrência na plataforma Conviva SP"],
+  ];
+
+  const boxMotivos = $("motivos");
+  MOTIVOS.forEach(g => {
+    const d = document.createElement("details"); d.className = "grupo"; d.dataset.cat = g.cat;
+    if (g.cat === "celular" || g.cat === "indisciplina") d.open = true;
+    d.innerHTML = `<summary><span>${g.titulo}<span class="n" hidden></span></span></summary>` +
+      g.itens.map(([id, rot]) => `<label><input type="checkbox" class="motivo" value="${id}" data-cat="${g.cat}"> ${rot}</label>`).join("");
+    boxMotivos.appendChild(d);
+  });
+  $("intervs").innerHTML = INTERVS.map(([id, rot]) => `<label><input type="checkbox" class="interv" value="${id}"> ${rot}</label>`).join("");
+
+  const MAP_M = {}, CAT_OF = {};
+  MOTIVOS.forEach(g => g.itens.forEach(([id,,fr]) => { MAP_M[id] = fr; CAT_OF[id] = g.cat; }));
+  const MAP_I = {}; INTERVS.forEach(([id,,fr]) => MAP_I[id] = fr);
+
+  // ================= ESTADO DO FORMULÁRIO =================
+  const CAMPOS = ["professor","disciplina","data","alunos","serie","tutor","outroMotivo","outrosTxt","outraInterv",
+    "genAluno","genProf","descricao","intervencao","encaminhamentos","cidade","dataEmissao","dataComparecer","procurar","funcao"];
+  const MARCAS = ["mPersistiu","mPrejudicou","mReincidente","dataEmBranco","mostrarConv","convEmBranco"];
+  const auto = { descricao:true, intervencao:true };
+
+  function lerEstado() {
+    const s = {};
+    CAMPOS.forEach(k => s[k] = $(k).value);
+    MARCAS.forEach(k => s[k] = $(k).checked);
+    s.motivos = Array.from(document.querySelectorAll("input.motivo:checked")).map(c => c.value);
+    s.intervs = Array.from(document.querySelectorAll("input.interv:checked")).map(c => c.value);
+    s.autoDesc = auto.descricao; s.autoInt = auto.intervencao;
+    return s;
+  }
+  function escreverEstado(s) {
+    CAMPOS.forEach(k => { if (s[k] !== undefined) $(k).value = s[k]; });
+    MARCAS.forEach(k => { if (s[k] !== undefined) $(k).checked = s[k]; });
+    document.querySelectorAll("input.motivo").forEach(c => c.checked = (s.motivos || []).includes(c.value));
+    document.querySelectorAll("input.interv").forEach(c => c.checked = (s.intervs || []).includes(c.value));
+    auto.descricao = s.autoDesc !== false; auto.intervencao = s.autoInt !== false;
+    marcaTag();
+  }
+  const nomes = s => s.alunos.split("\n").map(x => x.trim()).filter(Boolean);
+  function casos(s) {
+    const c = new Set(s.motivos.map(id => CAT_OF[id]));
+    if (s.outroMotivo.trim() || s.outrosTxt.trim()) c.add("outros");
+    return Array.from(c);
+  }
+
+  // ================= GERAÇÃO DO TEXTO =================
+  function gen(s) {
+    const ga = s.genAluno, gp = s.genProf;
+    return {
+      o: ga === "m" ? "o" : ga === "f" ? "a" : "o(a)",
+      aluno: ga === "m" ? "o aluno" : ga === "f" ? "a aluna" : "o(a) aluno(a)",
+      prof: gp === "f" ? "a professora" : "o professor",
+      ao: gp === "f" ? "à professora" : "ao professor",
+      do_: gp === "f" ? "da professora" : "do professor",
+      pelo: gp === "f" ? "pela professora" : "pelo professor",
+    };
+  }
+  const cap = s => s ? s.charAt(0).toUpperCase() + s.slice(1) : s;
+  const minus = s => s ? s.charAt(0).toLowerCase() + s.slice(1) : s;
+  const ponto = s => { s = s.trim(); return !s ? "" : /[.!?…]$/.test(s) ? s : s + "."; };
+  const juntar = arr => arr.length <= 1 ? arr.join("") : arr.slice(0, -1).join(", ") + " e " + arr[arr.length - 1];
+  function fill(fr, g, s) {
+    const tutor = (s.tutor || "").trim();
+    return fr.replace(/\{o\}/g, g.o).replace(/\{al\}/g, g.aluno)
+      .replace(/a\{prof\}/g, g.ao).replace(/d\{prof\}/g, g.do_).replace(/\{prof\}/g, g.prof)
+      .replace(/\{tutor\}/g, tutor ? (" (" + tutor + ")") : "");
+  }
+  function gerarDescricao(s, nome) {
+    const g = gen(s);
+    const frases = s.motivos.map(id => fill(MAP_M[id], g, s));
+    const outro = s.outroMotivo.trim();
+    if (!frases.length && !outro) return "";
+    const disc = s.disciplina.trim();
+    const abertura = disc ? `Durante a aula de ${disc}, ` : "Durante a aula, ";
+    const sujeito = g.aluno + (nome ? " " + nome : "");
+    let txt;
+    if (frases.length) {
+      txt = abertura + sujeito + " " + juntar(frases);
+      if (s.mPersistiu) txt += `, mesmo após ter sido orientad${g.o} ${g.pelo}`;
+      txt += ".";
+      if (outro) txt += " Além disso, " + ponto(minus(outro));
+    } else {
+      txt = abertura + `ocorreu a seguinte situação envolvendo ${sujeito}: ` + ponto(outro);
+      if (s.mPersistiu) txt += ` A conduta persistiu mesmo após orientação ${g.do_}.`;
+    }
+    if (s.mPrejudicou) txt += " A conduta prejudicou o andamento da aula e a aprendizagem dos colegas.";
+    if (s.mReincidente) txt += " Ressalta-se que a situação já ocorreu em outras ocasiões.";
+    return txt;
+  }
+  function gerarIntervencao(s) {
+    const g = gen(s);
+    const frases = s.intervs.map(id => fill(MAP_I[id], g, s));
+    const outra = s.outraInterv.trim();
+    let txt = frases.length ? cap(g.prof) + " " + juntar(frases) + "." : "";
+    if (outra) txt += (txt ? " Também " : cap(g.prof) + " ") + ponto(minus(outra));
+    return txt;
+  }
+  const descPara = (s, nome) => s.autoDesc ? gerarDescricao(s, nome) : s.descricao;
+  const intPara = s => s.autoInt ? gerarIntervencao(s) : s.intervencao;
+
+  // ================= LINHAS PAUTADAS =================
+  // Linhas feitas com bordas reais (não com gradiente de fundo), para imprimir certo no celular.
+  let medidor = null;
+  function linhasDe(texto) {
+    if (!medidor) {
+      medidor = document.createElement("div");
+      medidor.className = "folha medidor";
+      medidor.innerHTML = '<div class="bloco"><div class="linhas"><div class="texto"></div></div></div>';
+      document.body.appendChild(medidor);
+    }
+    const el = medidor.querySelector(".texto");
+    el.textContent = texto || " ";
+    const lh = parseFloat(getComputedStyle(el).lineHeight) || 22;
+    return Math.round(el.getBoundingClientRect().height / lh);
+  }
+  function pautar(box, texto) {
+    const n = Math.max(5, linhasDe(texto));
+    box.innerHTML = "";
+    for (let i = 0; i < n; i++) { const p = document.createElement("div"); p.className = "pauta"; box.appendChild(p); }
+    const tx = document.createElement("div"); tx.className = "texto"; tx.textContent = texto || ""; box.appendChild(tx);
+  }
+
+  // ================= MONTAGEM DAS FOLHAS =================
+  const tpl = $("tplFolha");
+  function folhas(s) {
+    const lista = nomes(s).length ? nomes(s) : [""];
+    const cs = casos(s);
+    const cidade = s.cidade.trim() || "Pirassununga/SP";
+    const cidadeCurta = cidade.split("/")[0];
+    const semData = s.dataEmBranco || !s.dataEmissao;
+    const local = semData ? `${cidade} ______ de ______________ de 20____` : `${cidade}, ${extenso(s.dataEmissao)}.`;
+    const linhaBranco = `${cidadeCurta}, _____ de ____________ de 20____.`;
+    const convLocal = semData ? linhaBranco : `${cidadeCurta}, ${extenso(s.dataEmissao)}.`;
+    const cb = s.convEmBranco;
+
+    return lista.map(aluno => {
+      const f = tpl.content.cloneNode(true);
+      const set = (k, v) => f.querySelectorAll(`[data-f="${k}"]`).forEach(el => el.textContent = v);
+      set("professor", s.professor); set("disciplina", s.disciplina); set("data", br(s.data));
+      set("aluno", aluno); set("serie", s.serie); set("tutor", s.tutor);
+      set("outrosTxt", cs.includes("outros") && s.outrosTxt.trim() ? " – " + s.outrosTxt.trim() : "");
+      pautar(f.querySelector('[data-f="descricao"]'), descPara(s, aluno));
+      pautar(f.querySelector('[data-f="intervencao"]'), intPara(s));
+      pautar(f.querySelector('[data-f="encaminhamentos"]'), s.encaminhamentos);
+      set("local", local); set("profAssin", s.professor); set("alunoAssin", "");
+      f.querySelectorAll("[data-c]").forEach(el => el.textContent = cs.includes(el.dataset.c) ? "X" : "  ");
+      set("convAluno", cb ? "" : aluno); set("convSerie", cb ? "" : s.serie);
+      set("convDia", cb ? "" : br(s.dataComparecer)); set("convOcorr", cb ? "" : br(s.data));
+      set("procurar", cb ? "" : s.procurar); set("funcao", cb ? "" : s.funcao);
+      set("convLocal", cb ? linhaBranco : convLocal);
+      if (!s.mostrarConv) f.querySelector(".conv").classList.add("oculta");
+      return f;
+    });
+  }
+
+  // ================= PRÉ-VISUALIZAÇÃO =================
+  const preview = $("preview");
+  function marcaTag() {
+    [["descricao","autoDescTag"],["intervencao","autoIntTag"]].forEach(([k,t]) => {
+      $(t).className = "auto " + (auto[k] ? "on" : "off");
+      $(t).textContent = auto[k] ? "automático" : "editado à mão";
+    });
+  }
+  function render() {
+    let s = lerEstado();
+    const primeiro = nomes(s)[0] || "";
+    if (auto.descricao) $("descricao").value = gerarDescricao(s, primeiro);
+    if (auto.intervencao) $("intervencao").value = gerarIntervencao(s);
+    document.querySelectorAll("#motivos details").forEach(d => {
+      const n = d.querySelectorAll("input:checked").length, el = d.querySelector(".n");
+      el.hidden = !n; el.textContent = n;
+    });
+    s = lerEstado();
+    preview.innerHTML = "";
+    const fs = folhas(s);
+    if (fs.length > 1) {
+      const c = document.createElement("div"); c.className = "contador";
+      c.textContent = `${fs.length} fichas nesta ocorrência (uma por aluno).`;
+      preview.appendChild(c);
+    }
+    fs.forEach(f => preview.appendChild(f));
+    const total = ["descricao","intervencao","encaminhamentos"].reduce((t,k) => t + $(k).value.length + ($(k).value.split("\n").length - 1) * 60, 0);
+    $("aviso").style.display = total > 1500 ? "block" : "none";
+  }
+
+  $("descricao").addEventListener("input", () => { auto.descricao = false; marcaTag(); });
+  $("intervencao").addEventListener("input", () => { auto.intervencao = false; marcaTag(); });
+  document.querySelectorAll("[data-regen]").forEach(b => b.addEventListener("click", () => {
+    auto[b.dataset.regen] = true; marcaTag(); render();
+  }));
+  $("form").addEventListener("input", render);
+  $("form").addEventListener("change", render);
+  $("form").addEventListener("submit", e => e.preventDefault());
+
+  // ================= IMPRESSÃO =================
+  const printArea = $("printArea");
+  const tituloOriginal = document.title;
+  function imprimir(estados, nomeArquivo) {
+    printArea.innerHTML = "";
+    estados.forEach(s => folhas(s).forEach(f => printArea.appendChild(f)));
+    document.title = nomeArquivo;
+    try { window.print(); } catch (e) {}
+  }
+  window.addEventListener("afterprint", () => { document.title = tituloOriginal; });
+  const dataArq = iso => br(iso).replace(/\//g, "-");
+
+  $("gerar").addEventListener("click", () => {
+    const s = lerEstado(), ns = nomes(s);
+    const nome = ns.length === 1 ? ns[0] : (ns.length > 1 ? `${ns.length} alunos` : "aluno");
+    imprimir([s], `Ocorrência - ${nome} - ${dataArq(s.data)}`);
+  });
+
+  // ================= LISTA =================
+  let lista = [];
+  try { lista = JSON.parse(store.get("lista") || "[]"); } catch (e) { lista = []; }
+  let editando = null;
+  const salvarLista = () => store.set("lista", JSON.stringify(lista));
+  const nFolhas = arr => arr.reduce((t, it) => t + Math.max(1, nomes(it.s).length), 0);
+
+  const toastEl = document.createElement("div"); toastEl.className = "toast"; document.body.appendChild(toastEl);
+  let toastT;
+  function toast(msg) { toastEl.textContent = msg; toastEl.classList.add("on"); clearTimeout(toastT); toastT = setTimeout(() => toastEl.classList.remove("on"), 2200); }
+
+  function renderLista() {
+    $("nLista").textContent = nFolhas(lista);
+    $("listaVazia").style.display = lista.length ? "none" : "block";
+    $("listaAcoes").style.display = lista.length ? "flex" : "none";
+    $("pdfTodas").textContent = `PDF com todas (${nFolhas(lista)} ${nFolhas(lista) === 1 ? "ficha" : "fichas"})`;
+    $("listaItens").innerHTML = lista.map((it, i) => {
+      const ns = nomes(it.s);
+      const nome = ns.length ? (ns.length > 1 ? `${ns[0]} + ${ns.length - 1}` : ns[0]) : "(sem nome)";
+      const cats = casos(it.s).map(c => CAT_LABEL[c]).join(", ") || "sem motivo marcado";
+      return `<div class="item${editando === it.id ? " ativo" : ""}">
+        <div class="info"><div class="nome">${i + 1}. ${esc(nome)}</div>
+        <div class="meta">${esc(it.s.serie || "—")} · ${br(it.s.data) || "sem data"} · ${esc(cats)}</div></div>
+        <button type="button" data-ed="${it.id}">Editar</button>
+        <button type="button" data-pdf="${it.id}">PDF</button>
+        <button type="button" class="rm" data-rm="${it.id}" title="Remover">✕</button></div>`;
+    }).join("");
+    $("editando").style.display = editando ? "block" : "none";
+    $("adicionar").textContent = editando ? "✓ Salvar alterações na lista" : "+ Adicionar à lista";
+  }
+
+  function limparOcorrencia() {
+    // mantém professor, disciplina, data, série, tutor, cidade e convocação; limpa o resto
+    ["alunos","outrosTxt","outroMotivo","outraInterv","descricao","intervencao","encaminhamentos"].forEach(id => $(id).value = "");
+    document.querySelectorAll("input.motivo, input.interv, #mPersistiu, #mPrejudicou, #mReincidente").forEach(c => c.checked = false);
+    auto.descricao = true; auto.intervencao = true; marcaTag();
+    render();
+  }
+
+  $("adicionar").addEventListener("click", () => {
+    const s = lerEstado();
+    if (!nomes(s).length) { toast("Preencha o nome do(a) aluno(a) antes de adicionar."); $("alunos").focus(); return; }
+    if (editando) {
+      const it = lista.find(x => x.id === editando);
+      if (it) it.s = s;
+      editando = null; toast("Alterações salvas na lista.");
+    } else {
+      lista.push({ id: Date.now().toString(36) + Math.random().toString(36).slice(2,6), s });
+      toast(`Adicionada! ${nFolhas(lista)} ${nFolhas(lista) === 1 ? "ficha" : "fichas"} na lista.`);
+    }
+    salvarLista(); limparOcorrencia(); renderLista();
+    $("alunos").focus();
+  });
+
+  $("listaItens").addEventListener("click", e => {
+    const b = e.target.closest("button"); if (!b) return;
+    if (b.dataset.ed) {
+      const it = lista.find(x => x.id === b.dataset.ed); if (!it) return;
+      if (!editando && $("alunos").value.trim() && !confirm("A ficha que está sendo preenchida (e não foi adicionada) será descartada. Continuar?")) return;
+      editando = it.id; escreverEstado(it.s); render(); renderLista();
+      $("form").scrollTop = 0; window.scrollTo(0, 0);
+    } else if (b.dataset.pdf) {
+      const it = lista.find(x => x.id === b.dataset.pdf); if (!it) return;
+      const ns = nomes(it.s);
+      imprimir([it.s], `Ocorrência - ${ns.length === 1 ? ns[0] : ns.length + " alunos"} - ${dataArq(it.s.data)}`);
+    } else if (b.dataset.rm) {
+      const it = lista.find(x => x.id === b.dataset.rm); if (!it) return;
+      if (!confirm(`Remover a ocorrência de ${nomes(it.s).join(", ") || "(sem nome)"} da lista?`)) return;
+      lista = lista.filter(x => x.id !== it.id);
+      if (editando === it.id) { editando = null; limparOcorrencia(); }
+      salvarLista(); renderLista();
+    }
+  });
+
+  $("cancelarEd").addEventListener("click", () => { editando = null; limparOcorrencia(); renderLista(); });
+
+  $("pdfTodas").addEventListener("click", () => {
+    if (!lista.length) return;
+    const datas = lista.map(it => it.s.data).filter(Boolean).sort();
+    const periodo = datas.length ? (datas[0] === datas[datas.length-1] ? dataArq(datas[0]) : `${dataArq(datas[0])} a ${dataArq(datas[datas.length-1])}`) : "";
+    imprimir(lista.map(it => it.s), `Ocorrências (${nFolhas(lista)}) - ${periodo}`);
+  });
+
+  $("esvaziar").addEventListener("click", () => {
+    if (!confirm(`Esvaziar a lista com ${nFolhas(lista)} ficha(s)? Gere o PDF antes, se ainda não gerou.`)) return;
+    lista = []; editando = null; salvarLista(); renderLista();
+  });
+
+  $("limpar").addEventListener("click", () => {
+    if (editando) { editando = null; renderLista(); }
+    limparOcorrencia();
+    $("data").value = hojeISO(); $("dataEmissao").value = hojeISO();
+    render();
+  });
+
+  marcaTag();
+  render();
+  renderLista();
+})();
+</script>
+</body>
+</html>
